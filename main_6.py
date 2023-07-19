@@ -33,6 +33,47 @@ enemy_y = 0
 enemy_speed = 3
 
 
+class Hero(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.image.load("character_design.png")
+        self.image = pygame.transform.scale(self.image, (width, height))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speed_x = 0
+        self.speed_y = 0
+        self.is_jumping = False
+
+    def update(self):
+        self.rect.x += self.speed_x
+
+        if not self.is_jumping and self.rect.y < SCREEN_HEIGHT - self.rect.height:
+            self.speed_y += GRAVITY
+        self.rect.y += self.speed_y
+
+    def jump(self):
+        if not self.is_jumping:
+            self.speed_y = JUMP_FORCE
+            self.is_jumping = True
+            self.speed_y += GRAVITY
+
+    def handle_collision(self, platforms):
+        for platform in platforms:
+            if self.rect.colliderect(platform.rect) and self.speed_y >= 0:
+                self.rect.y = platform.rect.y - self.rect.height
+                self.is_jumping = False
+                self.speed_y = 0
+
+class Platform(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill((0, 255, 0))  # Green color
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
 
 class Snake:
     def __init__(self):
@@ -67,6 +108,15 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("My platformer Game")
 
 background_img = pygame.image.load("start_screen.png")
+next_screen_img = pygame.image.load("map_N1.jpeg")
+end_screen_img = pygame.image.load("end_screen.jpeg")
+win_screen_img = pygame.image.load("win_screen.jpeg")
+background_img = pygame.transform.scale(background_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
+next_screen_img = pygame.transform.scale(next_screen_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
+end_screen_img = pygame.transform.scale(end_screen_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
+end_screen_rect = end_screen_img.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+win_screen_img = pygame.transform.scale(win_screen_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
+win_screen_rect = win_screen_img.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
 
 start_btn_img = pygame.image.load("start_button.png")
 button_width = 200
